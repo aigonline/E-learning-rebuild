@@ -2,9 +2,28 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 
-export const createClient = () => createClientComponentClient()
+// Check for required environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-export const createServerClient = () => createServerComponentClient({ cookies })
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("Missing Supabase environment variables. Please check your .env.local file.")
+  console.error("Required variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY")
+}
+
+export const createClient = () => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Supabase configuration is missing. Please check your environment variables.")
+  }
+  return createClientComponentClient()
+}
+
+export const createServerClient = () => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Supabase configuration is missing. Please check your environment variables.")
+  }
+  return createServerComponentClient({ cookies })
+}
 
 export type Database = {
   public: {
